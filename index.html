@@ -667,7 +667,7 @@ const ctx = canvas.getContext("2d");
 
 // load your FULL flower image
 const img = new Image();
-img.src = "dreamer flower.png";
+img.src = "images/dreamer flower full.png";
 
 img.onload = () => {
   const width = asciiOverlay.offsetWidth * 2;
@@ -712,9 +712,6 @@ asciiOverlay.appendChild(ascii2);
       output += "\n";
     }
   }
-
-  ascii.textContent = output;
-};
 intro.addEventListener("pointerdown", revealLightbox);
 </script>
 </body>
