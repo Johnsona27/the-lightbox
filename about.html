@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Dreamer</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --black: #111;
+      --white: #f4f4f1;
+      --line: rgba(0,0,0,0.9);
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Inter, Arial, sans-serif;
+      background: var(--white);
+    }
+
+    .page {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+    }
+
+    .panel-left,
+    .panel-right {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-left {
+      background: #fffcfb;
+      border-right: 4px solid var(--black);
+    }
+
+    .panel-right {
+      background: #f7f6f2;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 26px;
+      background: var(--black);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      z-index: 10;
+    }
+
+    .topbar .center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .carousel-wrap {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: blur(1px) saturate(0.75) contrast(0.95);
+      opacity: 0.9;
+    }
+
+    .carousel {
+      position: relative;
+      width: 90%;
+      height: 90%;
+      perspective: 1200px;
+    }
+
+    .ring {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      animation: rotate 22s linear infinite;
+    }
+
+    .ring img {
+      position: absolute;
+      width: 210px;
+      height: 290px;
+      left: 50%;
+      top: 50%;
+      object-fit: cover;
+      border-radius: 18px;
+      transform-origin: center center;
+      opacity: 0.9;
+    }
+
+    @keyframes rotate {
+      from { transform: rotateY(0deg); }
+      to { transform: rotateY(360deg); }
+    }
+
+    .soft-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(255,255,255,0.18), rgba(255,255,255,0.04)),
+        radial-gradient(circle at 50% 35%, rgba(255,255,255,0.35), transparent 15%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .right-content {
+      position: absolute;
+      inset: 0;
+      padding: 44px 36px;
+      color: #111;
+    }
+
+    .right-title {
+      position: absolute;
+      top: 32px;
+      right: 24px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .text-block {
+      position: absolute;
+      right: 24px;
+      top: 56px;
+      width: 220px;
+      font-size: 12px;
+      line-height: 1.25;
+      text-align: left;
+    }
+
+    .text-block p {
+      margin: 0 0 14px;
+    }
+
+   .right-ghost {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translate(-50%, -50%) scale(0.95);
+  width: 360px;
+  height: 130px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(0,0,0,0.04), transparent 70%);
+  opacity: 0.2;
+  transition: 
+    opacity 0.4s ease,
+    transform 0.4s ease,
+    filter 0.4s ease;
+}
+
+    .btn {
+      position: absolute;
+      bottom: 14px;
+      width: 98px;
+      height: 46px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.12);
+      color: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      text-decoration: none;
+      backdrop-filter: blur(8px);
+      z-index: 20;
+    }
+
+    .btn.left {
+      left: 8px;
+      width: 125px;
+    }
+
+    .btn.right {
+      right: 12px;
+      width: 52px;
+    }
+
+    @media (max-width: 900px) {
+      html, body {
+        overflow: auto;
+      }
+
+      .page {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .panel-left,
+      .panel-right {
+        min-height: 50vh;
+      }
+
+      .panel-left {
+        border-right: none;
+        border-bottom: 4px solid var(--black);
+      }
+
+      .text-block {
+        width: 180px;
+        font-size: 11px;
+      }
+
+.slider-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(0,0,0,0.2);
+  transform: translateY(-50%);
+}
+
+.slider-handle {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: black;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+}
+
+.slider-handle:active {
+  cursor: grabbing;
+}
+.clarity-label {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="panel-left">
+      <div class="topbar">
+        <span>DREAMER </span>
+        <span class="center">GD4</span>
+        <span>Focus System</span>
+      </div>
+
+      <div class="carousel-wrap">
+        
+  <div class="clarity-slider">
+    <div class="slider-track"></div>
+    <div class="slider-handle" id="sliderHandle"></div>
+  </div>
+
+        <div class="carousel">
+          <div class="ring" id="ring"></div>
+        </div>
+      </div>
+
+      <div class="soft-overlay"></div>
+    </div>
+
+    <div class="panel-right">
+      <div class="topbar">
+        <span>About</span>
+        <span class="center">GD4</span>
+        <span>Process</span>
+      </div>
+
+      <div class="right-content">
+        <div class="right-title">This is the Lightbox.</div>
+
+        <div class="text-block">
+          <p>The Lightbox is an interactive system that explores how clarity emerges through alignment. At first, the image is fragmented into separate pieces that appear disconnected and difficult to interpret. Individually, each part holds limited meaning, but through movement and positioning, relationships begin to form.
+
+The project invites interaction without explicit instruction. Users are encouraged to engage intuitively, gradually realizing that clarity is not achieved through a single action, but through coordination and shared attention. As the pieces are brought closer together, the image becomes more legible, revealing a complete form that was always present but initially obscured.
+
+Control is intentionally divided. Movement, selection, and disruption exist as separate actions, making it difficult for one person to fully resolve the system alone. This structure introduces a subtle dependency between participants, shifting the experience from individual interaction to collaborative focus.
+
+Clarity within the system is not permanent. It can be disrupted and must be reassembled, reinforcing the idea that understanding is an active, ongoing process rather than a fixed state.
+
+The Lightbox ultimately reframes perception as something constructed, not given, emerging through alignment, interaction, and attention.
+</p>
+        </div>
+
+        <div class="right-ghost"></div>
+      </div>
+    </div>
+
+    <a href="index.html" class="btn left">↗ Back</a>
+  </div>
+
+  <script>
+   const images = [
+      "Dreamer flower.png/dreamer flower 1.png",
+      "Dreamer flower.png/dreamer flower 2.png",
+      "Dreamer flower.png/dreamer flower 3.png",
+      "Dreamer flower.png/dreamer flower 4.png",
+      "Dreamer flower.png/dreamer flower 5.png",
+      "Dreamer flower.png/dreamer flower 6.png",
+    ];
+
+    const ring = document.getElementById("ring");
+    const total = images.length;
+    const radius = 320;
+
+    images.forEach((src, i) => {
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = `Dreamer image ${i + 1}`;
+
+      const angle = (360 / total) * i;
+      img.style.transform = `translate(-50%, -50%) rotateY(${angle}deg) translateZ(${radius}px)`;
+
+      ring.appendChild(img);
+    });
+
+    const ghost = document.querySelector(".right-ghost");
+
+    const slider = document.querySelector(".clarity-slider");
+    const handle = document.getElementById("sliderHandle");
+
+    let dragging = false;
+
+    handle.addEventListener("pointerdown", () => dragging = true);
+    window.addEventListener("pointerup", () => dragging = false);
+
+    window.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+
+      const rect = slider.getBoundingClientRect();
+
+      let x = e.clientX - rect.left;
+      x = Math.max(0, Math.min(x, rect.width));
+
+      const percent = x / rect.width;
+
+      handle.style.left = x + "px";
+
+      ring.style.opacity = 0.6 + (percent * 0.4);
+      ghost.style.opacity = 0.2 + (percent * 0.6);
+
+      const speed = 22 - (percent * 18);
+      ring.style.animationDuration = speed + "s";
+    });
+</script>
+</body>
+</html>

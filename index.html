@@ -1,0 +1,721 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dreamer Lightbox</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      background: #050509;
+      color: #f2f2f7;
+      overflow: hidden;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    .site-header {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.8);
+      z-index: 5;
+    }
+
+    .intro {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: #f5f5f5;
+      transition: opacity 0.9s ease, visibility 0.9s ease;
+      z-index: 4;
+      overflow: hidden;
+    }
+
+    .intro::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(ellipse 400px 300px at 15% 30%, rgba(255, 100, 150, 0.4), transparent 40%),
+        radial-gradient(ellipse 500px 350px at 85% 60%, rgba(100, 100, 150, 0.3), transparent 45%),
+        radial-gradient(ellipse 300px 250px at 50% 10%, rgba(150, 100, 200, 0.25), transparent 35%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .intro-blur-images {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .intro-blur-image {
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      object-fit: cover;
+      filter: blur(6px);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .intro.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .intro-title {
+      font-size: clamp(6rem, 15vw, 12rem);
+      line-height: 0.85;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+      color: #000;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .intro-subtitle {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: rgba(0, 0, 0, 0.6);
+      max-width: 38rem;
+      position: relative;
+      z-index: 2;
+      letter-spacing: 0.05em;
+    }
+
+    .intro-hint {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: rgba(0, 0, 0, 0.5);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 2;
+    }
+
+    .about-btn {
+  margin-left: 20px;
+  text-decoration: none;
+  color: rgba(255,255,255,0.8);
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.about-btn:hover {
+  opacity: 1;
+}
+
+    .stage {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #07080d;
+    }
+
+    .hero-background {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: clamp(8rem, 20vw, 16rem);
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.05);
+      letter-spacing: -0.08em;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .noise-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(0, 0, 0, 0.02) 300px, transparent 0px);
+      background-size: 300px 300px;
+      pointer-events: none;
+    }
+
+    .lightbox {
+      position: absolute;
+      inset: 60px 15px 15px 15px;
+      border-radius: 40px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 40px 120px rgba(134, 134, 134, 0.45), 0 0 80px rgba(255, 255, 255, 0.25),0 0 160px rgba(255, 255, 255, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      transition: transform 0.9s ease, opacity 0.9s ease;
+      transform: scale(0.98);
+      opacity: 0.1;
+    }
+.lightbox::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(255,255,255,0.15) 100%
+  );
+}
+    #finalImage {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .lightbox.ready {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .lightbox::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(255, 80, 130, 0.08), transparent 18%);
+      pointer-events: none;
+    }
+    
+.ascii-overlay {
+  position: absolute;
+  inset: 0;             
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+    .ascii-overlay {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      line-height: 1;
+      white-space: pre;
+      z-index: 9;
+    }
+.ascii-text {
+  position: absolute;
+  top: -25%;
+  left: -25%;
+
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+
+  font-family: monospace;
+  font-size: 10px;
+  line-height: 10px;
+  white-space: pre;
+
+  color: rgba(141, 141, 141, 0.35);
+  mix-blend-mode: multiply;
+
+  animation: blob-density 20s ease-in-out infinite alternate;
+}
+
+    @keyframes blob-density {
+  0% { transform: translate(0px, 0px) scale(1); }
+  25% { transform: translate(-20px, 10px) scale(1.05); }
+  50% { transform: translate(30px, -15px) scale(1.1); }
+  75% { transform: translate(-10px, 20px) scale(0.98); }
+  100% { transform: translate(0px, 0px) scale(1); 
+  } 
+}
+@keyframes ascii-scroll {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-20%, -10%) scale(1.05); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+    .floating-image {
+      position: absolute;
+      width: 220px;
+      height: 300px;
+      border-radius: 28px;
+      overflow: hidden;
+      background-color: rgba(255, 255, 255, 0.07);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: grab;
+      transition: transform 0.30s ease, filter 0.30s ease, opacity 0.7s ease;
+      opacity: 1;
+      will-change: transform;
+    }
+
+    .floating-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+
+    .floating-image.show {
+      opacity: 1;
+    }
+
+    .floating-image:hover {
+      transform: translateY(-6px) scale(1.03);
+    }
+
+    .floating-image.dragging {
+      cursor: grabbing;
+      filter: brightness(1.05) contrast(1.05);
+      transform: scale(1.04);
+    }
+
+    .ghost-piece {
+      position: absolute;
+      width: 180px;
+      height: 240px;
+      border-radius: 28px;
+      overflow: hidden;
+      background-color: rgba(255, 255, 255, 0.03);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      opacity: 0.25;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .ghost-piece img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .ghost-piece.trail {
+      animation: fade-trail 3s ease-out forwards;
+    }
+
+    @keyframes fade-trail {
+      0% {
+        opacity: 0.15;
+        transform: scale(0.95);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1);
+      }
+    }
+  .clarity-text {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.5);
+  z-index: 20;
+  pointer-events: none;
+  }
+
+.floating-image img {
+  filter: brightness(0.75) contrast(1.1);
+}
+
+.interaction-text {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  z-index: 10;
+  pointer-events: none;
+}
+
+  </style>
+</head>
+<body>
+  <div class="site-header">
+  Dreamer
+<a href="about.html">About</a>
+  </div>
+  <div class="intro" id="intro"> 
+    <div class="intro-blur-images" id="introBlurImages"></div>
+    <div class="intro-title">The Lightbox</div>
+    <div class="intro-subtitle">
+      Click anywhere to reveal the lightbox and move the pieces freely.
+    </div>
+    <div class="intro-hint">tap to begin</div>
+  </div>
+
+  <div class="stage">
+    <div class="hero-background">The Lightbox</div>
+    
+    <div class="noise-grid"></div>
+    <div class="lightbox" id="lightbox">
+      <div id="clarityText" class="clarity-text">Clarity: 0%</div>
+      <img id="finalImage" src="dreamer flower full.png" />
+      <div class="ascii-overlay" id="asciiOverlay"></div>
+    </div>
+<div class="interaction-text">
+  WASD = Move &nbsp;&nbsp;&nbsp; ← → = Select &nbsp;&nbsp;&nbsp; SPACE = Shuffle
+</div>
+  </div>
+
+ <script>
+  // ---------------- IMAGES ----------------
+const imageUrls = [
+  "Dreamer flower.png/dreamer flower 3.png",
+  "Dreamer flower.png/dreamer flower 4.png",
+  "Dreamer flower.png/dreamer flower 5.png",
+  "Dreamer flower.png/dreamer flower 6.png",
+  "Dreamer flower.png/dreamer flower 7.png",
+  "Dreamer flower.png/dreamer flower 8.png",
+  "Dreamer flower.png/dreamer flower 9.png"
+];
+
+  const introBlurImages = document.getElementById("introBlurImages");
+
+const blurPositions = [
+  { left: "-100px", top: "-50px", src: imageUrls[0] },
+  { right: "-80px", top: "10%", src: imageUrls[1] },
+  { left: "5%", bottom: "-100px", src: imageUrls[2] },
+  { right: "2%", bottom: "5%", src: imageUrls[3] },
+  { left: "10%", top: "20%", src: imageUrls[4] }
+];
+
+blurPositions.forEach(pos => {
+  const img = document.createElement("img");
+  img.className = "intro-blur-image";
+  img.src = pos.src;
+
+  if (pos.left) img.style.left = pos.left;
+  if (pos.right) img.style.right = pos.right;
+  if (pos.top) img.style.top = pos.top;
+  if (pos.bottom) img.style.bottom = pos.bottom;
+
+  introBlurImages.appendChild(img);
+});
+
+
+function revealLightbox() {
+  intro.classList.add("hide");
+  lightbox.classList.add("ready");
+
+  // CREATE CARDS
+  imageUrls.forEach(src => {
+    const card = createCard(src);
+    lightbox.appendChild(card);
+  });
+
+  const asciiOverlay = document.getElementById("asciiOverlay");
+
+  const chars = ["#", "%", "@", "*", "+", "-", ".", " "];
+
+  const rect = asciiOverlay.getBoundingClientRect();
+
+  const charWidth = 2;
+  const charHeight = 4;
+
+  const cols = Math.floor(rect.width / charWidth);
+  const rows = Math.floor(rect.height / charHeight);
+
+  let output = "";
+
+  for (let i = 0; i < rows; i++) {
+    let line = "";
+    for (let j = 0; j < cols; j++) {
+      line += chars[Math.floor(Math.random() * chars.length)];
+    }
+    output += line + "\n";
+  }
+
+  const ascii = document.createElement("div");
+  ascii.className = "ascii-text";
+  ascii.textContent = output;
+
+  asciiOverlay.appendChild(ascii);
+
+  updateSelection();
+  updateClarity();
+}
+const intro = document.getElementById("intro");
+const lightbox = document.getElementById("lightbox");
+
+let selectedIndex = 0;
+
+// ---------------- CREATE CARDS ----------------
+function createCard(src) {
+  const card = document.createElement("div");
+  card.className = "floating-image";
+
+  const img = document.createElement("img");
+  img.src = src;
+  card.appendChild(img);
+
+  const box = lightbox.getBoundingClientRect();
+
+const x = Math.random() * (box.width - 220);
+const y = Math.random() * (box.height - 300);
+
+  card.dataset.x = x;
+  card.dataset.y = y;
+
+  applyTransform(card);
+
+  // DRAG
+  card.addEventListener("pointerdown", (e) => {
+    dragging = card;
+    const rect = card.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+  });
+
+  return card;
+}
+
+// ---------------- TRANSFORM ----------------
+function applyTransform(card) {
+  const x = parseFloat(card.dataset.x) || 0;
+  const y = parseFloat(card.dataset.y) || 0;
+  card.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+function setCardPosition(card, x, y) {
+  const box = lightbox.getBoundingClientRect();
+
+  x = Math.max(0, Math.min(x, box.width - 200));
+  y = Math.max(0, Math.min(y, box.height - 260));
+
+  card.dataset.x = x;
+  card.dataset.y = y;
+
+  applyTransform(card);
+}
+
+// ---------------- CLARITY ----------------
+function updateClarity() {
+  const cards = lightbox.querySelectorAll(".floating-image");
+
+  let alignedCount = 0;
+
+  // reference = first card
+  const first = cards[0];
+  const baseX = parseFloat(first.dataset.x);
+  const baseY = parseFloat(first.dataset.y);
+
+  const threshold = 80; // how close they must be
+
+  cards.forEach(card => {
+    const x = parseFloat(card.dataset.x);
+    const y = parseFloat(card.dataset.y);
+
+    const dx = x - baseX;
+    const dy = y - baseY;
+
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < threshold) {
+      alignedCount++;
+    }
+  });
+
+ const progress = alignedCount / cards.length;
+const percent = Math.round(progress * 100);
+
+document.getElementById("clarityText").textContent =
+  "Clarity: " + percent + "%";
+
+document.getElementById("finalImage").style.opacity = progress;
+}
+// ---------------- DRAG ----------------
+let dragging = null;
+let offsetX = 0;
+let offsetY = 0;
+
+window.addEventListener("pointermove", (e) => {
+  if (!dragging) return;
+
+  const box = lightbox.getBoundingClientRect();
+
+  const x = e.clientX - box.left - offsetX;
+  const y = e.clientY - box.top - offsetY;
+
+  setCardPosition(dragging, x, y);
+  updateClarity();
+});
+
+window.addEventListener("pointerup", () => {
+  dragging = null;
+});
+
+function reshuffleCards() {
+  const cards = lightbox.querySelectorAll(".floating-image");
+
+  const box = lightbox.getBoundingClientRect();
+
+  cards.forEach(card => {
+    const x = Math.random() * (box.width - 220);
+    const y = Math.random() * (box.height - 300);
+
+    card.dataset.x = x;
+    card.dataset.y = y;
+
+    applyTransform(card);
+  });
+
+  // reset clarity visuals
+  document.getElementById("finalImage").style.opacity = 0;
+  document.getElementById("clarityText").textContent = "Clarity: 0%";
+
+  updateClarity();
+}
+
+// ---------------- KEYBOARD ----------------
+function updateSelection() {
+  const cards = lightbox.querySelectorAll(".floating-image");
+
+  cards.forEach((c, i) => {
+    c.style.outline = i === selectedIndex ? "3px solid black" : "none";
+c.style.transform += i === selectedIndex ? " scale(1.05)" : "";
+  });
+}
+
+document.addEventListener("keydown", (e) => {
+  const cards = lightbox.querySelectorAll(".floating-image");
+  const card = cards[selectedIndex];
+  if (!card) return;
+
+  let x = parseFloat(card.dataset.x) || 0;
+  let y = parseFloat(card.dataset.y) || 0;
+
+  const step = 12;
+
+  // movement
+  if (e.key === "w") y -= step;
+  if (e.key === "s") y += step;
+  if (e.key === "a") x -= step;
+  if (e.key === "d") x += step;
+
+  // selection
+  if (e.key === "ArrowLeft") {
+    selectedIndex = (selectedIndex - 1 + cards.length) % cards.length;
+    updateSelection();
+    return;
+  }
+
+  if (e.key === "ArrowRight") {
+    selectedIndex = (selectedIndex + 1) % cards.length;
+    updateSelection();
+    return;
+  }
+
+  if (e.code === "Space") {
+  e.preventDefault(); // prevents page scroll
+  reshuffleCards();
+  return;
+}
+
+  // existing movement code below...
+  setCardPosition(card, x, y);
+  updateClarity();
+});
+
+// ---------------- INIT ----------------
+const asciiOverlay = document.getElementById("asciiOverlay");
+
+// create hidden canvas
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
+
+// load your FULL flower image
+const img = new Image();
+img.src = "dreamer flower.png";
+
+img.onload = () => {
+  const width = asciiOverlay.offsetWidth * 2;
+const height = asciiOverlay.offsetHeight * 2;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  // draw image into canvas
+  ctx.drawImage(img, 0, 0, width, height);
+
+  const imageData = ctx.getImageData(0, 0, width, height).data;
+
+ const ascii = document.createElement("div");
+ascii.className = "ascii-text";
+ascii.textContent = output;
+
+// 🔥 DUPLICATE CORRECTLY
+const ascii2 = ascii.cloneNode(true);
+
+// position second one
+ascii2.style.left = ascii.offsetWidth + "px";
+
+asciiOverlay.appendChild(ascii);
+asciiOverlay.appendChild(ascii2);
+
+  // generate ASCII based on brightness
+  const chars = ["#", "%", "@", "*", "+", "-", ".", " "];
+
+  let output = "";
+
+  for (let i = 0; i < imageData.length; i += 4) {
+    const r = imageData[i];
+    const g = imageData[i + 1];
+    const b = imageData[i + 2];
+
+    const brightness = (r + g + b) / 3;
+    const charIndex = Math.floor((brightness / 255) * (chars.length - 1));
+    output += chars[charIndex];
+
+    if ((i / 4 + 1) % width === 0) {
+      output += "\n";
+    }
+  }
+
+  ascii.textContent = output;
+};
+intro.addEventListener("pointerdown", revealLightbox);
+</script>
+</body>
+</html>
